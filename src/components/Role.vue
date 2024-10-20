@@ -3,7 +3,7 @@
 
 import {onMounted, reactive, ref} from "vue";
 import useClipboard from "vue-clipboard3";
-import {Action, ElMessage, ElMessageBox} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 import * as axios from "axios";
 
 const doCopy = () => {
@@ -244,6 +244,40 @@ const copyCommand = async (position: string, index: number) => {
   baseStr += 'x1'
   myCopy(baseStr)
 }
+
+const itemNum = ref<number>(1)
+const itemType = ref<number>(1)
+
+interface ID_TITLE{
+  id: number,
+  title: string,
+}
+
+const commonList = reactive<ID_TITLE[]>([
+  {id: 1, title: ' 星琼'},
+  {id: 2, title: ' 信用点'},
+  {id: 3, title: ' 古老梦华'},
+  {id: 11, title: ' 开拓力'},
+  {id: 12, title: ' 后备开拓力'},
+  {id: 21, title: ' 经验'},
+  {id: 22, title: ' 里程'},
+  {id: 23, title: ' 活跃度'},
+  {id: 31, title: ' 宇宙碎片'},
+  {id: 32, title: ' 技能点'},
+  {id: 33, title: ' 沉浸器'},
+  {id: 101, title: ' 星轨通票'},
+  {id: 102, title: ' 星轨专票'},
+  {id: 201, title: ' 燃料'},
+])
+
+const getSth = () => {
+  let baseStr = '/give ' + itemType.value + ' x' + itemNum.value
+  myCopy(baseStr)
+}
+
+const unlockMission = () => {
+  myCopy('/unlockall mission')
+}
 </script>
 
 <template>
@@ -253,26 +287,44 @@ const copyCommand = async (position: string, index: number) => {
       <el-form-item label="获取所有满级角色" class="role-form-item">
         <el-button @click="doCopy">复制</el-button>
       </el-form-item>
-      <el-form-item label="等级拉满" class="role-form-item">
+      <el-form-item label="角色等级拉满" class="role-form-item">
         <el-button @click="doLevel">复制</el-button>
       </el-form-item>
-      <el-form-item label="天赋拉满" class="role-form-item">
+      <el-form-item label="角色天赋拉满" class="role-form-item">
         <el-button @click="doSkill">复制</el-button>
       </el-form-item>
-      <el-form-item label="获取所有满级满精光追" class="role-form-item">
+      <el-form-item label="满精光锥拉满" class="role-form-item">
         <el-button @click="doWeapon">复制</el-button>
       </el-form-item>
+      <el-form-item label="解锁全部任务" class="role-form-item">
+        <el-button @click="unlockMission">复制</el-button>
+      </el-form-item>
       <el-form-item label="切换主角" class="role-form-item">
-        <el-row style="width: 300px;">
-          <el-col :span="16">
+        <el-row style="width: 160px;">
+          <el-col :span="12">
             <el-select v-model="myWay" style="margin-bottom: 10px">
               <el-option label="毁灭" value="8001"></el-option>
               <el-option label="存护" value="8003"></el-option>
               <el-option label="同协" value="8005"></el-option>
             </el-select>
           </el-col>
+          <el-col :span="12">
+            <el-button style="margin-left: 10px" @click="changeWay">复制</el-button>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item label="获取指定物品" class="role-form-item">
+        <el-row style="width: 400px;">
           <el-col :span="8">
-            <el-button @click="changeWay">复制</el-button>
+            <el-select v-model="itemType" style="margin-bottom: 10px">
+              <el-option v-for="iitem in commonList" :key="iitem.id" :value="iitem.id" :label="iitem.title"></el-option>
+            </el-select>
+          </el-col>
+          <el-col :span="10">
+            <el-input-number v-model="itemNum" style="margin-left: 10px"></el-input-number>
+          </el-col>
+          <el-col :span="4">
+            <el-button @click="getSth">生成指令</el-button>
           </el-col>
         </el-row>
       </el-form-item>
