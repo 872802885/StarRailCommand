@@ -3,7 +3,7 @@
 
 import {onMounted, reactive, ref} from "vue";
 import useClipboard from "vue-clipboard3";
-import {ElMessage} from "element-plus";
+import {Action, ElMessage, ElMessageBox} from "element-plus";
 import * as axios from "axios";
 
 const doCopy = () => {
@@ -34,18 +34,18 @@ const currentSuit = reactive<any>({
 })
 
 const subList = ref([
-  {title: '攻击力百分比', id: 1},
-  {title: '速度', id: 2},
-  {title: '击破特攻', id: 3},
-  {title: '生命值', id: 4},
-  {title: '生命值百分比', id: 5},
-  {title: '攻击力', id: 6},
-  {title: '防御力', id: 7},
-  {title: '防御力百分比', id: 8},
-  {title: '暴击率', id: 9},
-  {title: '暴击伤害', id: 10},
-  {title: '效果命中', id: 11},
-  {title: '效果抵抗', id: 12},
+  {title: '生命值', id: 1},
+  {title: '攻击力', id: 2},
+  {title: '防御力', id: 3},
+  {title: '生命值百分比', id: 4},
+  {title: '攻击力百分比', id: 5},
+  {title: '防御力百分比', id: 6},
+  {title: '速度', id: 7},
+  {title: '暴击率', id: 8},
+  {title: '暴击伤害', id: 9},
+  {title: '效果命中', id: 10},
+  {title: '效果抵抗', id: 11},
+  {title: '击破特攻', id: 12},
 ])
 const mainList = ref<any>({
   head: [{title: '生命值', id: 1}],
@@ -149,16 +149,18 @@ const myCopy = async (data: string) => {
     })
   }
 }
-interface SubDetail{
+
+interface SubDetail {
   id: number,
   title: string,
   effect: string[],
-  summary:string
+  summary: string
 }
+
 onMounted(async () => {
   const {data} = await axios.default.get('/common/blackboard/sr_wiki/v1/home/content/list?app_sn=sr_wiki&channel_id=30')
-  data.data.list[0].list.forEach((item:any) => {
-    let target :SubDetail = {
+  data.data.list[0].list.forEach((item: any) => {
+    let target: SubDetail = {
       id: item.content_id,
       title: item.title,
       effect: JSON.parse(item.ext)['c_30']['table']['list'],
@@ -174,7 +176,7 @@ onMounted(async () => {
   console.log(suitForList)
 })
 
-const getSuitList = (position:string) => {
+const getSuitList = (position: string) => {
   if (positionList.value.findIndex(v => v === position) > 3) {
     return suitTwoList
   } else {
@@ -184,17 +186,17 @@ const getSuitList = (position:string) => {
 
 const myWay = ref<string>('8001')
 
-const delSub = (position:string, index:number) => {
+const delSub = (position: string, index: number) => {
   currentSuit[position].sub.splice(index, 1)
 }
 
-const addSub = (position:string) => {
+const addSub = (position: string) => {
   let obj = {
     num: currentSuit[position].current,
     id: currentSuit[position].subType,
     title: ' * ' + currentSuit[position].current
   }
-  let index = currentSuit[position].sub.findIndex((v:any) => v.id === currentSuit[position].subType)
+  let index = currentSuit[position].sub.findIndex((v: any) => v.id === currentSuit[position].subType)
   if (index < 0) {
     if (currentSuit[position].sub.length > 3) {
       ElMessage({
@@ -210,19 +212,33 @@ const addSub = (position:string) => {
   }
 }
 
-const copyCommand = (position:string, index:number) => {
-  if (currentSuit[position].sub.length<1){
+const copyCommand = async (position: string, index: number) => {
+  if (currentSuit[position].sub.length < 1) {
     ElMessage({
-      message:'至少需要一个副词条!',
+      message: '至少需要一个副词条!',
       type: 'error',
-      offset:100
+      offset: 100
     })
     return
   }
-  let baseStr = '/relic ' + idMap[currentSuit[position].suitType] + (index+1) //61033 1 8:3 9:3 7:1 6:2 l3 x1'
-  baseStr +=  ' l15 '
+  if (currentSuit[position].sub.length < 4) {
+    const result = await ElMessageBox.confirm(
+        '副词条不足4条, 空闲位置将会随机分配属性',
+        '警告',
+        {
+          confirmButtonText: '继续生成',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+    )
+    if (result !== 'confirm') {
+      return
+    }
+  }
+  let baseStr = '/relic ' + idMap[currentSuit[position].suitType] + (index + 1) //61033 1 8:3 9:3 7:1 6:2 l3 x1'
+  baseStr += ' l15 '
   baseStr += currentSuit[position].mainType + ' '
-  currentSuit[position].sub.forEach((v:any) => {
+  currentSuit[position].sub.forEach((v: any) => {
     baseStr += v.id + ':' + v.num + ' '
   })
   baseStr += 'x1'
