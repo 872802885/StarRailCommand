@@ -10,7 +10,7 @@ const doCopy = () => {
   myCopy('/giveall avatar r6 l80 ×1')
 }
 const doSkill = () => {
-  myCopy('avatar talent -1 10')
+  myCopy('/avatar talent -1 10')
 }
 const doWeapon = () => {
   myCopy('/giveall equipment r5 l80 ×1')
@@ -208,7 +208,17 @@ const addSub = (position:string) => {
 }
 
 const copyCommand = (position:string, index:number) => {
-  let baseStr = '/relic ' + idMap[currentSuit[position].suitType] + (index+1) + ' ' //61033 1 8:3 9:3 7:1 6:2 l3 x1'
+  if (currentSuit[position].sub.length<1){
+    ElMessage({
+      message:'至少需要一个副词条!',
+      type: 'error',
+      offset:100
+    })
+    return
+  }
+  let baseStr = '/relic ' + idMap[currentSuit[position].suitType] + (index+1) //61033 1 8:3 9:3 7:1 6:2 l3 x1'
+  baseStr +=  ' l15 '
+  baseStr += currentSuit[position].mainType + ' '
   currentSuit[position].sub.forEach((v:any) => {
     baseStr += v.id + ':' + v.num + ' '
   })
@@ -229,9 +239,6 @@ const copyCommand = (position:string, index:number) => {
       </el-form-item>
       <el-form-item label="获取所有满级满精光追" class="role-form-item">
         <el-button @click="doWeapon">复制</el-button>
-      </el-form-item>
-      <el-form-item label="获取所有满级角色" class="role-form-item">
-        <el-button @click="doCopy">复制</el-button>
       </el-form-item>
       <el-form-item label="切换主角" class="role-form-item">
         <el-row style="width: 300px;">
@@ -261,7 +268,6 @@ const copyCommand = (position:string, index:number) => {
             v-model="currentSuit[position].suitType"
         >
           <el-option v-for="item of getSuitList(position)" :key="item.id" :label="item.title" :value="item.id">
-            {{ item.id }}
           </el-option>
         </el-select>
         <el-divider></el-divider>
