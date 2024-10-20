@@ -9,6 +9,9 @@ import * as axios from "axios";
 const doCopy = () => {
   myCopy('/giveall avatar r6 l80 ×1')
 }
+const doLevel = () => {
+  myCopy('/avatar level -1 80')
+}
 const doSkill = () => {
   myCopy('/avatar talent -1 10')
 }
@@ -233,6 +236,9 @@ const copyCommand = (position:string, index:number) => {
              style="width: 100%;padding: 15px;border-radius: 15px;margin-right:15px;background: #a4d2ff">
       <el-form-item label="获取所有满级角色" class="role-form-item">
         <el-button @click="doCopy">复制</el-button>
+      </el-form-item>
+      <el-form-item label="等级拉满" class="role-form-item">
+        <el-button @click="doLevel">复制</el-button>
       </el-form-item>
       <el-form-item label="天赋拉满" class="role-form-item">
         <el-button @click="doSkill">复制</el-button>
